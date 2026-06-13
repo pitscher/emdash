@@ -32,7 +32,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Element } from "@emdash-cms/blocks";
 import { useFloating, offset, flip, shift, autoUpdate } from "@floating-ui/react";
 import type { MessageDescriptor } from "@lingui/core";
-import { msg } from "@lingui/core/macro";
+import { msg, plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import {
 	TextB,
@@ -1429,7 +1429,7 @@ function PluginBlockModal({
 								ref={inputRef}
 								type="url"
 								className="w-full"
-								placeholder={block?.placeholder || "Enter URL..."}
+								placeholder={block?.placeholder || t`Enter URL...`}
 								value={typeof formValues.id === "string" ? formValues.id : ""}
 								onChange={(e) => handleFieldChange("id", e.target.value)}
 							/>
@@ -1437,10 +1437,10 @@ function PluginBlockModal({
 					</div>
 					<div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
 						<Button type="button" variant="ghost" onClick={onClose}>
-							Cancel
+							{t`Cancel`}
 						</Button>
 						<Button type="submit" disabled={!canSubmit}>
-							{isEditing ? "Save" : "Insert"}
+							{isEditing ? t`Save` : t`Insert`}
 						</Button>
 					</div>
 				</form>
@@ -1464,6 +1464,8 @@ function BlockKitField({
 	value: unknown;
 	onChange: (actionId: string, value: unknown) => void;
 }) {
+	const { t } = useLingui();
+
 	switch (field.type) {
 		case "text_input": {
 			const multiline = !!field.multiline;
@@ -1540,7 +1542,7 @@ function BlockKitField({
 			);
 		}
 		default:
-			return <div className="text-sm text-kumo-subtle">Unknown field type: {field.type}</div>;
+			return <div className="text-sm text-kumo-subtle">{t`Unknown field type: ${field.type}`}</div>;
 	}
 }
 
@@ -1961,13 +1963,9 @@ function EditorFooter({ editor }: { editor: Editor }) {
 
 	return (
 		<div className="border-t px-4 py-2 flex items-center gap-4 text-xs text-kumo-subtle">
-			<span>
-				{words} {words === 1 ? "word" : "words"}
-			</span>
-			<span>
-				{characters} {characters === 1 ? "character" : "characters"}
-			</span>
-			<span>{readingTime} min read</span>
+			<span>{plural(words, { one: "# word", other: "# words" })}</span>
+			<span>{plural(characters, { one: "# character", other: "# characters" })}</span>
+			<span>{plural(readingTime, { one: "# min read", other: "# min read" })}</span>
 		</div>
 	);
 }
