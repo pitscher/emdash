@@ -2016,7 +2016,7 @@ export interface PortableTextEditorProps {
 export function PortableTextEditor({
 	value,
 	onChange,
-	placeholder = "Start writing...",
+	placeholder: providedPlaceholder,
 	className,
 	editable = true,
 	"aria-labelledby": ariaLabelledby,
@@ -2029,6 +2029,13 @@ export function PortableTextEditor({
 	onBlockSidebarClose,
 }: PortableTextEditorProps) {
 	const { t } = useLingui();
+	const placeholder = providedPlaceholder ?? t`Start writing...`;
+
+	// Use a ref for the placeholder to ensure the callback reads the latest localized placeholder
+	const placeholderRef = React.useRef(placeholder);
+	React.useEffect(() => {
+		placeholderRef.current = placeholder;
+	}, [placeholder]);
 
 	// Use a ref for onChange to avoid recreating the editor when the callback changes
 	const onChangeRef = React.useRef(onChange);
@@ -2225,12 +2232,7 @@ export function PortableTextEditor({
 			TableCell,
 			Placeholder.configure({
 				includeChildren: true,
-				placeholder: ({ node }) => {
-					if (node.type.name === "paragraph") {
-						return placeholder;
-					}
-					return placeholder;
-				},
+				placeholder: () => placeholderRef.current,
 			}),
 			TextAlign.configure({
 				types: ["heading", "paragraph"],
